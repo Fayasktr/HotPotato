@@ -14,8 +14,8 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hotpotato')
         console.log('Connected to MongoDB');
         
         // --- SECURE OWNER BOOTSTRAP ---
-        // If the database is completely empty (no admins), we create the initial owner
-        // securely using Environment Variables instead of hardcoded files.
+        // Since Render Free Tier does not have Shell access, we MUST create the 
+        // initial owner automatically. This only runs once when the DB is empty.
         const User = require('./models/User');
         const adminCount = await User.countDocuments({ role: 'admin' });
         
@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hotpotato')
                 password: hashedPassword,
                 role: 'admin'
             });
-            console.log(`Securely bootstrapped owner account for ${process.env.OWNER_EMAIL}`);
+            console.log(`Successfully bootstrapped owner account!`);
         }
     })
     .catch(err => console.error('MongoDB connection error:', err));

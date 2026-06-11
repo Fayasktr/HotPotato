@@ -10,7 +10,27 @@ const app = express();
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hotpotato')
-    .then(() => console.log('Connected to MongoDB'))
+    .then(async () => {
+        console.log('Connected to MongoDB');
+        
+        // --- SECURE OWNER BOOTSTRAP ---
+        // If the database is completely empty (no admins), we create the initial owner
+        // securely using Environment Variables instead of hardcoded files.
+        const User = require('./models/User');
+        const adminCount = await User.countDocuments({ role: 'admin' });
+        
+        if (adminCount === 0 && process.env.OWNER_EMAIL && process.env.OWNER_PASS) {
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash(process.env.OWNER_PASS, 10);
+            await User.create({
+                name: 'Owner Admin',
+                email: process.env.OWNER_EMAIL.toLowerCase(),
+                password: hashedPassword,
+                role: 'admin'
+            });
+            console.log(`Securely bootstrapped owner account for ${process.env.OWNER_EMAIL}`);
+        }
+    })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Setup express

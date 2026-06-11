@@ -17,10 +17,12 @@ const seedDB = async () => {
     await Potato.deleteMany({});
 
     // 1. Create Admin
-    const adminPassword = await bcrypt.hash('admin123', 10);
+    const ownerEmail = process.env.OWNER_EMAIL || 'admin@test.com';
+    const ownerPass = process.env.OWNER_PASS || 'admin123';
+    const adminPassword = await bcrypt.hash(ownerPass, 10);
     const admin = await User.create({
-      name: 'Admin',
-      email: 'admin@test.com',
+      name: 'Owner Admin',
+      email: ownerEmail.toLowerCase(),
       password: adminPassword,
       role: 'admin'
     });
@@ -34,8 +36,8 @@ const seedDB = async () => {
     // 3. Create Coordinator for BCE312
     const coordPassword = await bcrypt.hash('pass123', 10);
     const coordinator = await User.create({
-      name: 'Fayas',
-      email: 'fayas@test.com',
+      name: 'Fayas Coord',
+      email: 'coordinator@test.com',
       password: coordPassword,
       role: 'coordinator',
       batchId: batch1._id

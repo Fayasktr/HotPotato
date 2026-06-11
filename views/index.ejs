@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <div class="container text-center">
+    <div class="potato-hero active" style="max-width: 600px; margin: 4rem auto;">
+      <span class="potato-emoji">🥔</span>
+      <h1 style="font-size: 3rem; margin-bottom: 1rem;">Hot Potato</h1>
+      <p class="text-muted mb-4" style="font-size: 1.2rem;">The ultimate English-zone enforcement game for your college batch!</p>
+      
+      <%- include('partials/flash') %>
+      
+      <% if (!locals.user) { %>
+        <div class="mb-4">
+          <a href="/login" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Log In</a>
+        </div>
+      <% } else { %>
+        <div class="mb-4">
+          <p class="text-muted" style="margin-bottom: 10px;">You are currently logged in as <strong><%= user.name %></strong>.</p>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin" class="btn btn-primary">Go to Admin Dashboard</a>
+          <% } else if (user.batchId) { %>
+            <a href="/batch/<%= user.batchId %>" class="btn btn-primary">Go to Your Batch</a>
+          <% } else { %>
+            <p style="color: var(--danger);">You have not been assigned to a batch yet. Please ask your administrator.</p>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+    
+    <div class="glass-panel" style="max-width: 600px; margin: 0 auto; text-align: left;">
+      <h3 class="mb-3">Available Batches</h3>
+      <% if (batches && batches.length > 0) { %>
+        <ul class="member-list">
+          <% batches.forEach(batch => { %>
+            <li class="member-item">
+              <strong style="font-size: 1.1rem;"><%= batch.name %></strong>
+              <% if (!locals.user) { %>
+                <a href="/register?batchId=<%= batch._id %>" class="btn btn-small" style="background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success);">Join as Student</a>
+              <% } %>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="text-muted">No batches have been created yet. An admin needs to create one!</p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

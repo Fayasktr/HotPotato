@@ -1,0 +1,42 @@
+<header class="site-header">
+  <div class="brand">
+    <a href="/" style="color: white; display: flex; align-items: center; gap: 10px;">
+      <span>🥔</span> Hot Potato
+    </a>
+  </div>
+
+  <nav>
+    <% if (locals.user) { %>
+      <% if (locals.user.role === 'admin') { %>
+        <a href="/admin">Dashboard</a>
+      <% } %>
+      <div style="position: relative; display: inline-block;">
+        <button class="btn btn-small" id="profileBtn" onclick="document.getElementById('profileMenu').style.display = document.getElementById('profileMenu').style.display === 'block' ? 'none' : 'block';" style="background: rgba(255,255,255,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; border: none; cursor: pointer;">
+          <%= user.name.charAt(0).toUpperCase() %>
+        </button>
+        <div id="profileMenu" style="display: none; position: absolute; right: 0; top: 120%; background: var(--bg-color-light); border: 1px solid var(--glass-border); border-radius: 8px; padding: 0.5rem; min-width: 180px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 200;">
+          <div style="padding: 0.5rem; border-bottom: 1px solid var(--glass-border); margin-bottom: 0.5rem; text-transform: capitalize; color: #fff;">
+            <strong><%= user.name %></strong>
+            <div style="font-size: 0.8em; color: var(--text-muted); text-transform: none;"><%= user.email %></div>
+          </div>
+          <a href="/profile" style="display: block; padding: 0.5rem; color: var(--text-color); border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">My Profile</a>
+          <form action="/logout" method="GET" style="margin: 0; display: block; padding: 0.5rem;">
+            <button type="submit" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0; width: 100%; text-align: left; transition: color 0.2s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--danger)'">Logout</button>
+          </form>
+        </div>
+      </div>
+      <script>
+        // Close dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+          const menu = document.getElementById('profileMenu');
+          const btn = document.getElementById('profileBtn');
+          if (menu.style.display === 'block' && !menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.style.display = 'none';
+          }
+        });
+      </script>
+    <% } else { %>
+      <a href="/login" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Login</a>
+    <% } %>
+  </nav>
+</header>

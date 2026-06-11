@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Users - Admin - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Manage Users</h2>
+      <a href="/admin" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">&larr; Back to Dashboard</a>
+    </div>
+    
+    <%- include('../partials/flash') %>
+    
+    <div class="glass-panel mb-4">
+      <h3 class="mb-3">Create New User</h3>
+      <form action="/admin/users" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Name</label>
+          <input type="text" name="name" class="form-control" required placeholder="Jane Smith">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" required placeholder="jane@college.edu">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Password</label>
+          <input type="password" name="password" class="form-control" required placeholder="••••••••">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Role</label>
+          <select name="role" class="form-control">
+            <option value="coordinator">Coordinator</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Assign Batch (Optional)</label>
+          <select name="batchId" class="form-control">
+            <option value="">None</option>
+            <% batches.forEach(b => { %>
+              <option value="<%= b._id %>"><%= b.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create User</button>
+      </form>
+    </div>
+
+    <div class="glass-panel">
+      <div class="flex justify-between items-center mb-3">
+        <h3>All Users</h3>
+        <input type="text" id="userSearch" class="form-control" placeholder="Search users by name or email..." style="max-width: 300px;" onkeyup="filterTable('userTable', 'userSearch')">
+      </div>
+      <div class="table-container">
+        <table id="userTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Batch</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(u => { %>
+              <tr>
+                <td data-label="Name"><%= u.name %></td>
+                <td data-label="Email"><%= u.email %></td>
+                <td data-label="Role">
+                  <% if (u.email === locals.ownerEmail) { %>
+                    <span style="font-weight: bold; color: var(--danger);">Owner</span>
+                  <% } else if (locals.user && u._id.toString() !== locals.user._id.toString()) { %>
+                    <form action="/admin/users/<%= u._id %>/role" method="POST">
+                      <select name="role" class="form-control" style="padding: 0.4rem; font-size: 0.85rem; width: 100%; min-width: 100px;" onchange="this.form.submit()">
+                        <option value="student" <%= u.role === 'student' ? 'selected' : '' %>>Student</option>
+                        <option value="coordinator" <%= u.role === 'coordinator' ? 'selected' : '' %>>Coordinator</option>
+                        <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                      </select>
+                    </form>
+                  <% } else { %>
+                    <span style="text-transform: capitalize;"><%= u.role %></span>
+                  <% } %>
+                </td>
+                <td data-label="Batch">
+                  <% if (u.email === locals.ownerEmail) { %>
+                    <span class="text-muted">N/A</span>
+                  <% } else if (locals.user && u._id.toString() !== locals.user._id.toString()) { %>
+                    <form action="/admin/users/<%= u._id %>/batch" method="POST">
+                      <select name="batchId" class="form-control" style="padding: 0.4rem; font-size: 0.85rem; width: 100%; min-width: 120px;" onchange="this.form.submit()">
+                        <option value="">None</option>
+                        <% batches.forEach(b => { %>
+                          <option value="<%= b._id %>" <%= u.batchId && u.batchId._id.toString() === b._id.toString() ? 'selected' : '' %>><%= b.name %></option>
+                        <% }) %>
+                      </select>
+                    </form>
+                  <% } else { %>
+                    <span class="text-muted">N/A</span>
+                  <% } %>
+                </td>
+                <td data-label="Actions">
+                  <% if (u.email === locals.ownerEmail) { %>
+                    <span class="text-muted" style="font-size: 0.85em;">(Protected)</span>
+                  <% } else if (locals.user && u._id.toString() !== locals.user._id.toString()) { %>
+                    <form action="/admin/users/<%= u._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this user?');">
+                      <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                    </form>
+                  <% } else { %>
+                    <span class="text-muted" style="font-size: 0.85em;">(You)</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="/js/search.js"></script>
+</body>
+</html>

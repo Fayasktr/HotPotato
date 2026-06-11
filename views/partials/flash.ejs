@@ -1,0 +1,11 @@
+<% if (locals.success && success.length > 0) { %>
+  <div class="flash-message flash-success">
+    <div><%= success %></div>
+  </div>
+<% } %>
+
+<% if (locals.error && error.length > 0) { %>
+  <div class="flash-message flash-error">
+    <div><%= error %></div>
+  </div>
+<% } %>

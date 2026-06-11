@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Members - <%= batch.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Manage Members: <%= batch.name %></h2>
+      <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">&larr; Back to Game</a>
+    </div>
+    
+    <%- include('../partials/flash') %>
+    
+    <div class="grid-2">
+      <div class="glass-panel">
+        <h3 class="mb-3">Add New Student</h3>
+        <form action="/batch/<%= batch._id %>/members/add" method="POST">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" required placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required placeholder="john@college.edu">
+          </div>
+          <div class="form-group">
+            <label>Temporary Password</label>
+            <input type="text" name="tempPassword" class="form-control" required placeholder="password123">
+          </div>
+          <button type="submit" class="btn btn-primary w-full mt-2">Add Student</button>
+        </form>
+      </div>
+
+      <div class="glass-panel">
+        <div class="flex justify-between items-center mb-3">
+          <h3>Current Members</h3>
+          <input type="text" id="memberSearch" class="form-control btn-small" placeholder="Search..." style="max-width: 200px; padding: 0.5rem;" onkeyup="filterTable('memberTable', 'memberSearch')">
+        </div>
+        <div class="table-container">
+          <table id="memberTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% members.forEach(m => { %>
+                <tr>
+                  <td data-label="Name">
+                    <div><strong><%= m.name %></strong></div>
+                    <div class="text-muted" style="font-size: 0.85em; text-transform: none;"><%= m.email %></div>
+                  </td>
+                  <td data-label="Role"><span style="text-transform: capitalize;"><%= m.role %></span></td>
+                  <td data-label="Actions">
+                    <% if (user.role === 'admin' || (m.role !== 'coordinator' && m.role !== 'admin')) { %>
+                      <form action="/admin/users/<%= m._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Remove <%= m.name %> from system?');">
+                        <button type="submit" class="btn btn-danger btn-small">Remove</button>
+                      </form>
+                    <% } else { %>
+                      <span class="text-muted" style="font-size: 0.85em;">N/A</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/search.js"></script>
+</body>
+</html>

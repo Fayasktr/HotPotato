@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Batches - Admin - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Manage Batches</h2>
+      <a href="/admin" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">&larr; Back to Dashboard</a>
+    </div>
+    
+    <%- include('../partials/flash') %>
+    
+    <div class="grid-2">
+      <div class="glass-panel">
+        <h3 class="mb-3">Create New Batch</h3>
+        <form action="/admin/batches" method="POST">
+          <div class="form-group">
+            <label>Batch Name</label>
+            <input type="text" name="name" class="form-control" required placeholder="e.g. CS Batch 2026">
+          </div>
+          <div class="form-group">
+            <label>Assign Coordinator</label>
+            <select name="coordinatorId" class="form-control" required>
+              <option value="">Select Coordinator</option>
+              <% coordinators.forEach(c => { %>
+                <option value="<%= c._id %>"><%= c.name %> (<%= c.email %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-full">Create Batch</button>
+        </form>
+      </div>
+
+      <div class="glass-panel">
+        <h3 class="mb-3">All Batches</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Batch Name</th>
+                <th>Coordinator</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% batches.forEach(batch => { %>
+                <tr>
+                  <td data-label="Batch Name"><%= batch.name %></td>
+                  <td data-label="Coordinator"><%= batch.coordinatorId ? batch.coordinatorId.name : 'None' %></td>
+                  <td data-label="Actions">
+                    <div class="flex gap-2">
+                      <a href="/batch/<%= batch._id %>/members" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Members</a>
+                      <form action="/admin/batches/<%= batch._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this batch? This removes all history and potatoes!');">
+                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

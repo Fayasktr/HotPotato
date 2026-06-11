@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+      <h2 class="mb-3">My Profile</h2>
+      <%- include('../partials/flash') %>
+      
+      <div class="mb-4">
+        <p><strong>Name:</strong> <%= user.name %></p>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Role:</strong> <span style="text-transform: capitalize;"><%= user.role %></span></p>
+      </div>
+
+      <h3 class="mb-3">Change Password</h3>
+      <form action="/profile/password?_method=PUT" method="POST">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" name="currentPassword" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" name="newPassword" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" name="confirmPassword" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Update Password</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

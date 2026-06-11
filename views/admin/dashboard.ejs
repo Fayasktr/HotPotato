@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Admin Dashboard</h2>
+    </div>
+    
+    <%- include('../partials/flash') %>
+    
+    <div class="grid-2">
+      <div class="glass-panel">
+        <div class="flex justify-between items-center mb-3">
+          <h3>Batches</h3>
+          <a href="/admin/batches" class="btn btn-primary btn-small">Manage Batches</a>
+        </div>
+        <p class="text-muted">Total Batches: <strong><%= batches.length %></strong></p>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Coordinator</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% batches.forEach(batch => { %>
+                <tr>
+                  <td data-label="Name"><%= batch.name %></td>
+                  <td data-label="Coordinator"><%= batch.coordinatorId ? batch.coordinatorId.name : 'None' %></td>
+                  <td data-label="Actions">
+                    <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View Game</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="glass-panel">
+        <div class="flex justify-between items-center mb-3">
+          <h3>Users</h3>
+          <a href="/admin/users" class="btn btn-primary btn-small">Manage Users</a>
+        </div>
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-muted" style="margin: 0;">Total Users: <strong><%= users.length %></strong></p>
+          <input type="text" id="dashUserSearch" class="form-control btn-small" placeholder="Search..." style="max-width: 200px; padding: 0.5rem;" onkeyup="filterTable('dashUserTable', 'dashUserSearch')">
+        </div>
+        
+        <div class="table-container">
+          <table id="dashUserTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach(u => { %>
+                <tr>
+                  <td data-label="Name"><%= u.name %></td>
+                  <td data-label="Role"><span style="text-transform: capitalize;"><%= u.role %></span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/search.js"></script>
+</body>
+</html>

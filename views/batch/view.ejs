@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch <%= batch.name %> - Hot Potato</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Batch: <%= batch.name %></h2>
+    </div>
+    <%- include('../partials/flash') %>
+    
+    <!-- 1. Potato Hero -->
+    <div class="potato-hero <%= potato.holderId ? 'active' : '' %> mb-4">
+      <% if (!potato.holderId) { %>
+        <h2>No one holds the potato yet 🥔</h2>
+      <% } else { %>
+        <h2>🥔 <%= potato.holderId.name %></h2>
+        <p class="mt-2" style="font-size: 1.2rem; color: #fff;"><strong>Reason:</strong> <%= potato.reason %></p>
+        <p class="text-muted" style="margin-top: 1rem;"><small>Tagged by <%= potato.taggedBy ? potato.taggedBy.name : 'Unknown' %> at <%= new Date(potato.timestamp).toLocaleString() %></small></p>
+      <% } %>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass-panel">
+        <!-- 2. Assign First Holder form -->
+        <% if (!potato.holderId && (user.role === 'coordinator' || user.role === 'admin')) { %>
+          <h3 class="mb-3">Assign First Potato Holder</h3>
+          <form action="/potato/assign" method="POST" onsubmit="return checkWordCount(this)">
+            <input type="hidden" name="batchId" value="<%= batch._id %>">
+            <div class="form-group">
+              <label>Select Member</label>
+              <select name="toId" class="form-control" required>
+                <option value="">-- Select --</option>
+                <% members.forEach(m => { %>
+                  <option value="<%= m._id %>"><%= m.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Reason (min 5 words)</label>
+              <textarea name="reason" rows="3" class="form-control" required oninput="updateWordCount(this)"></textarea>
+              <p id="wordCount" class="text-muted mt-1" style="font-size: 0.8em;">Words: 0</p>
+            </div>
+            <button type="submit" id="submitBtn" class="btn btn-primary w-full" disabled>Assign</button>
+          </form>
+        <% } %>
+
+        <!-- 3. Pass Potato form -->
+        <% if (potato.holderId && (user._id.toString() === potato.holderId._id.toString() || user.role === 'coordinator' || user.role === 'admin')) { %>
+          <h3 class="mb-3">Pass Potato</h3>
+          <form action="/potato/pass" method="POST" onsubmit="return checkWordCount(this)">
+            <input type="hidden" name="batchId" value="<%= batch._id %>">
+            <div class="form-group">
+              <label>Pass To</label>
+              <select name="toId" class="form-control" required>
+                <option value="">-- Select --</option>
+                <% members.forEach(m => { %>
+                  <% if (m._id.toString() !== potato.holderId._id.toString()) { %>
+                    <option value="<%= m._id %>"><%= m.name %></option>
+                  <% } %>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Reason (min 5 words)</label>
+              <textarea name="reason" rows="3" class="form-control" required oninput="updateWordCount(this)"></textarea>
+              <p id="wordCount" class="text-muted mt-1" style="font-size: 0.8em;">Words: 0</p>
+            </div>
+            <button type="submit" id="submitBtn" class="btn btn-primary w-full" disabled>Pass Potato</button>
+          </form>
+        <% } %>
+
+        <!-- Members list (only show here if no form is shown, or maybe always show below) -->
+        <div class="mt-4">
+          <div class="flex justify-between items-center mb-3">
+            <h3>Members</h3>
+            <% if (user.role === 'coordinator' || user.role === 'admin') { %>
+              <a href="/batch/<%= batch._id %>/members" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Manage</a>
+            <% } %>
+          </div>
+          <ul class="member-list">
+            <% members.forEach(m => { %>
+              <li class="member-item">
+                <span style="font-weight: 500;"><%= m.name %></span>
+                <% if (potato.holderId && m._id.toString() === potato.holderId._id.toString()) { %>
+                  <span title="Currently holds the potato" style="font-size: 1.2rem;">🥔</span>
+                <% } %>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2" style="grid-template-columns: 1fr; gap: 2rem;">
+        <!-- 5. Leaderboard chart -->
+        <div class="glass-panel">
+          <h3 class="mb-3">Leaderboard</h3>
+          <ol style="padding-left: 20px; color: var(--text-color);">
+            <% leaderboard.forEach((entry, index) => { %>
+              <li style="margin-bottom: 5px;"><%= entry.name %> <span class="text-muted">— <%= entry.count %> times</span></li>
+            <% }) %>
+          </ol>
+        </div>
+
+        <!-- 6. History log -->
+        <div class="glass-panel">
+          <h3 class="mb-3">History Log</h3>
+          <ul class="log-list">
+            <% historyLog.forEach(h => { %>
+              <li class="log-item">
+                <div style="font-size: 0.95rem; color: #fff;">
+                  <strong><%= h.fromId ? h.fromId.name : 'System' %></strong> caught <strong><%= h.toId ? h.toId.name : 'Unknown' %></strong>
+                </div>
+                <div style="color: var(--text-muted); font-style: italic; margin-top: 4px; font-size: 0.9em;">"<%= h.reason %>"</div>
+                <div class="log-meta"><%= new Date(h.timestamp).toLocaleString() %></div>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Polling Data Elements -->
+    <div id="poll-data" 
+         data-batch-id="<%= batch._id %>" 
+         data-holder-id="<%= potato.holderId ? potato.holderId._id : '' %>" 
+         data-timestamp="<%= potato.timestamp ? new Date(potato.timestamp).getTime() : '' %>"
+         style="display:none;">
+    </div>
+  </main>
+
+  <script>
+    function updateWordCount(textarea) {
+      const text = textarea.value.trim();
+      const words = text === '' ? 0 : text.split(/\s+/).length;
+      textarea.parentElement.querySelector('#wordCount').innerText = `Words: ${words}`;
+      textarea.form.querySelector('#submitBtn').disabled = words < 5;
+    }
+
+    function checkWordCount(form) {
+      const text = form.reason.value.trim();
+      const words = text === '' ? 0 : text.split(/\s+/).length;
+      if (words < 5) {
+        alert('Reason must be at least 5 words long.');
+        return false;
+      }
+      return true;
+    }
+
+  </script>
+  <script src="/js/poll.js"></script>
+</body>
+</html>

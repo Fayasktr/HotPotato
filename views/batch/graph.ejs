@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Potato Graph - <%= batch.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .graph-bar-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .graph-label {
+      width: 150px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-color);
+    }
+    .graph-bar-wrap {
+      flex-grow: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      height: 24px;
+      margin: 0 1rem;
+      overflow: hidden;
+    }
+    .graph-bar {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.5s ease-in-out;
+    }
+    .graph-count {
+      width: 50px;
+      text-align: right;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Potato Graph for <%= batch.name %></h2>
+      <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Back to Game</a>
+    </div>
+    <%- include('../partials/flash') %>
+    
+    <div class="glass-panel">
+      <% if (leaderboard && leaderboard.length > 0) { %>
+        <% const maxCount = Math.max(...leaderboard.map(l => l.count)); %>
+        <% leaderboard.forEach(entry => { %>
+          <% const percentage = Math.max(2, (entry.count / maxCount) * 100); %>
+          <div class="graph-bar-container">
+            <div class="graph-label" title="<%= entry.name %>"><%= entry.name %></div>
+            <div class="graph-bar-wrap">
+              <div class="graph-bar" style="width: <%= percentage %>%;"></div>
+            </div>
+            <div class="graph-count"><%= entry.count %></div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="text-muted">No potato history found yet.</p>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

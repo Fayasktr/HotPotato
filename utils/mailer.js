@@ -15,6 +15,14 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
       pass: process.env.SMTP_PASS,
     },
   });
+} else if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+  });
 } else {
   // Mock transporter for local development
   transporter = {

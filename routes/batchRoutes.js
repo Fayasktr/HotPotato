@@ -41,10 +41,10 @@ router.get('/:batchId', isInBatch, async (req, res) => {
     const potato = await Potato.findOne({ batchId }).populate('holderId taggedBy');
     const members = await User.find({ batchId }).sort('name');
     
-    // History - last 30 entries
+    // History - last 3 entries
     const historyLog = await History.find({ batchId })
       .sort('-timestamp')
-      .limit(30)
+      .limit(3)
       .populate('fromId toId');
 
     // Leaderboard aggregation
@@ -52,7 +52,7 @@ router.get('/:batchId', isInBatch, async (req, res) => {
       { $match: { batchId: batch._id } },
       { $group: { _id: "$toId", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: 10 },
+      { $limit: 3 },
       { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } },
       { $unwind: "$user" },
       { $project: { name: "$user.name", count: 1 } }
@@ -62,6 +62,80 @@ router.get('/:batchId', isInBatch, async (req, res) => {
   } catch (err) {
     req.flash('error', 'Error loading batch view');
     res.redirect('/');
+  }
+});
+
+// GET /batch/:batchId/history -> full history log
+router.get('/:batchId/history', isInBatch, async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    
+    if (req.session.user.role !== 'admin' && req.session.user.batchId.toString() !== batchId) {
+      req.flash('error', 'You can only view your own batch');
+      return res.redirect('/');
+    }
+
+    const batch = await Batch.findById(batchId);
+    
+    // History - all entries
+    const historyLog = await History.find({ batchId })
+      .sort('-timestamp')
+      .populate('fromId toId');
+
+    res.render('batch/history', { batch, historyLog });
+  } catch (err) {
+    req.flash('error', 'Error loading history view');
+    res.redirect(`/batch/${req.params.batchId}`);
+  }
+});
+
+// GET /batch/:batchId/graph -> full leaderboard graph
+router.get('/:batchId/graph', isInBatch, async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    
+    if (req.session.user.role !== 'admin' && req.session.user.batchId.toString() !== batchId) {
+      req.flash('error', 'You can only view your own batch');
+      return res.redirect('/');
+    }
+
+    const batch = await Batch.findById(batchId);
+    
+    // Leaderboard aggregation (all members)
+    const leaderboard = await History.aggregate([
+      { $match: { batchId: batch._id } },
+      { $group: { _id: "$toId", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } },
+      { $unwind: "$user" },
+      { $project: { name: "$user.name", count: 1 } }
+    ]);
+
+    res.render('batch/graph', { batch, leaderboard });
+  } catch (err) {
+    req.flash('error', 'Error loading graph view');
+    res.redirect(`/batch/${req.params.batchId}`);
+  }
+});
+
+// GET /batch/:batchId/all-members -> view all members without management
+router.get('/:batchId/all-members', isInBatch, async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    
+    if (req.session.user.role !== 'admin' && req.session.user.batchId.toString() !== batchId) {
+      req.flash('error', 'You can only view your own batch');
+      return res.redirect('/');
+    }
+
+    const batch = await Batch.findById(batchId);
+    const members = await User.find({ batchId }).sort('name');
+    const potato = await Potato.findOne({ batchId }).populate('holderId');
+
+    res.render('batch/all-members', { batch, members, potato });
+  } catch (err) {
+    req.flash('error', 'Error loading members view');
+    res.redirect(`/batch/${req.params.batchId}`);
   }
 });
 

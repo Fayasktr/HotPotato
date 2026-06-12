@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members - <%= batch.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Members of <%= batch.name %></h2>
+      <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Back to Game</a>
+    </div>
+    <%- include('../partials/flash') %>
+    
+    <div class="glass-panel">
+      <ul class="member-list">
+        <% members.forEach(m => { %>
+          <li class="member-item <%= (potato && potato.holderId && m._id.toString() === potato.holderId._id.toString()) ? 'hot-seat' : '' %>">
+            <span style="font-weight: 500;"><%= m.name %></span>
+            <% if (potato && potato.holderId && m._id.toString() === potato.holderId._id.toString()) { %>
+              <span class="animated-potato" title="Currently holds the potato" style="font-size: 1.2rem;">🥔</span>
+            <% } %>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

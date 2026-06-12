@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History Log - <%= batch.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4">
+      <h2>Full History for <%= batch.name %></h2>
+      <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Back to Game</a>
+    </div>
+    <%- include('../partials/flash') %>
+    
+    <div class="glass-panel">
+      <% if (historyLog && historyLog.length > 0) { %>
+        <ul class="log-list">
+          <% historyLog.forEach(h => { %>
+            <li class="log-item">
+              <div style="font-size: 0.95rem; color: #fff;">
+                <strong><%= h.fromId ? h.fromId.name : 'System' %></strong> caught <strong><%= h.toId ? h.toId.name : 'Unknown' %></strong>
+              </div>
+              <div style="color: var(--text-muted); font-style: italic; margin-top: 4px; font-size: 0.9em;">"<%= h.reason %>"</div>
+              <div class="log-meta"><%= new Date(h.timestamp).toLocaleString() %></div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="text-muted">No potato history found yet.</p>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

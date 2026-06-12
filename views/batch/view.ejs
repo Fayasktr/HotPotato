@@ -76,31 +76,27 @@
           </form>
         <% } %>
 
-        <!-- Members list (only show here if no form is shown, or maybe always show below) -->
+        <!-- Members link to reduce load -->
         <div class="mt-4">
           <div class="flex justify-between items-center mb-3">
             <h3>Members</h3>
-            <% if (user.role === 'coordinator' || user.role === 'admin') { %>
-              <a href="/batch/<%= batch._id %>/members" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Manage</a>
-            <% } %>
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="/batch/<%= batch._id %>/all-members" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View All Members</a>
+              <% if (user.role === 'coordinator' || user.role === 'admin') { %>
+                <a href="/batch/<%= batch._id %>/members" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">Manage</a>
+              <% } %>
+            </div>
           </div>
-          <ul class="member-list">
-            <% members.forEach(m => { %>
-              <li class="member-item">
-                <span style="font-weight: 500;"><%= m.name %></span>
-                <% if (potato.holderId && m._id.toString() === potato.holderId._id.toString()) { %>
-                  <span title="Currently holds the potato" style="font-size: 1.2rem;">🥔</span>
-                <% } %>
-              </li>
-            <% }) %>
-          </ul>
         </div>
       </div>
 
       <div class="grid-2" style="grid-template-columns: 1fr; gap: 2rem;">
         <!-- 5. Leaderboard chart -->
         <div class="glass-panel">
-          <h3 class="mb-3">Leaderboard</h3>
+          <div class="flex justify-between items-center mb-3">
+            <h3>Leaderboard</h3>
+            <a href="/batch/<%= batch._id %>/graph" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View Full Graph</a>
+          </div>
           <ol style="padding-left: 20px; color: var(--text-color);">
             <% leaderboard.forEach((entry, index) => { %>
               <li style="margin-bottom: 5px;"><%= entry.name %> <span class="text-muted">— <%= entry.count %> times</span></li>
@@ -110,7 +106,10 @@
 
         <!-- 6. History log -->
         <div class="glass-panel">
-          <h3 class="mb-3">History Log</h3>
+          <div class="flex justify-between items-center mb-3">
+            <h3>History Log</h3>
+            <a href="/batch/<%= batch._id %>/history" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View Full History</a>
+          </div>
           <ul class="log-list">
             <% historyLog.forEach(h => { %>
               <li class="log-item">

@@ -17,11 +17,14 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER) {
   });
 } else if (process.env.MAIL_USER && process.env.MAIL_PASS) {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
     },
+    family: 4 // Force IPv4 to avoid ENETUNREACH on systems with broken IPv6 routing
   });
 } else {
   // Mock transporter for local development

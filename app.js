@@ -31,6 +31,13 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hotpotato')
             });
             console.log(`Successfully bootstrapped owner account!`);
         }
+
+        // --- MONTHLY EMAIL CONFIRMATION CHECK ---
+        const { checkAndSendMonthlyEmail } = require('./utils/monthlyMailer');
+        // Check immediately on startup
+        checkAndSendMonthlyEmail();
+        // Check every 12 hours
+        setInterval(checkAndSendMonthlyEmail, 12 * 60 * 60 * 1000);
     })
     .catch(err => console.error('MongoDB connection error:', err));
 

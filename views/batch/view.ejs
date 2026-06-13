@@ -22,7 +22,7 @@
       <% } else { %>
         <h2>🥔 <%= potato.holderId.name %></h2>
         <p class="mt-2" style="font-size: 1.2rem; color: #fff;"><strong>Reason:</strong> <%= potato.reason %></p>
-        <p class="text-muted" style="margin-top: 1rem;"><small>Tagged by <%= potato.taggedBy ? potato.taggedBy.name : 'Unknown' %> at <%= new Date(potato.timestamp).toLocaleString() %></small></p>
+        <p class="text-muted" style="margin-top: 1rem;"><small>Tagged by <%= potato.taggedBy ? potato.taggedBy.name : 'Unknown' %> at <%= formatDateTime(potato.timestamp) %></small></p>
       <% } %>
     </div>
 
@@ -93,9 +93,12 @@
       <div class="grid-2" style="grid-template-columns: 1fr; gap: 2rem;">
         <!-- 5. Leaderboard chart -->
         <div class="glass-panel">
-          <div class="flex justify-between items-center mb-3">
+          <div class="flex justify-between items-center mb-3" style="flex-wrap: wrap; gap: 0.5rem;">
             <h3>Leaderboard</h3>
-            <a href="/batch/<%= batch._id %>/graph" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View Full Graph</a>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a href="/batch/<%= batch._id %>/duration" class="btn btn-small" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white;">Time Leaderboard ⏱️</a>
+              <a href="/batch/<%= batch._id %>/graph" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">View Full Graph</a>
+            </div>
           </div>
           <ol style="padding-left: 20px; color: var(--text-color);">
             <% leaderboard.forEach((entry, index) => { %>
@@ -117,7 +120,7 @@
                   <strong><%= h.fromId ? h.fromId.name : 'System' %></strong> caught <strong><%= h.toId ? h.toId.name : 'Unknown' %></strong>
                 </div>
                 <div style="color: var(--text-muted); font-style: italic; margin-top: 4px; font-size: 0.9em;">"<%= h.reason %>"</div>
-                <div class="log-meta"><%= new Date(h.timestamp).toLocaleString() %></div>
+                <div class="log-meta"><%= formatDateTime(h.timestamp) %></div>
               </li>
             <% }) %>
           </ul>

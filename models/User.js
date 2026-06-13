@@ -15,4 +15,22 @@ const userSchema = new mongoose.Schema({
   batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch' }
 });
 
+userSchema.post('save', async function(doc, next) {
+  try {
+    const History = mongoose.model('History');
+    // Link any existing history logs matching this email to this user's new _id
+    await History.updateMany(
+      { toEmail: doc.email.toLowerCase() },
+      { toId: doc._id }
+    );
+    await History.updateMany(
+      { fromEmail: doc.email.toLowerCase() },
+      { fromId: doc._id }
+    );
+  } catch (err) {
+    console.error('Error auto-linking history logs to user:', err);
+  }
+  next();
+});
+
 module.exports = mongoose.model('User', userSchema);

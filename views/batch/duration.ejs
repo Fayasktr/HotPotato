@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Leaderboard - <%= batch.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="container">
+    <div class="flex justify-between items-center mb-4" style="flex-wrap: wrap; gap: 1rem;">
+      <h2>Holding Duration Leaderboard</h2>
+      <a href="/batch/<%= batch._id %>" class="btn btn-small" style="background: rgba(255,255,255,0.1); color: white;">&larr; Back to Game</a>
+    </div>
+    <%- include('../partials/flash') %>
+    
+    <div class="glass-panel" style="margin-bottom: 2rem;">
+      <p class="text-muted" style="margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+        ⏱️ This leaderboard tracks the cumulative active duration each member has held the potato.
+        <br><strong>Rules:</strong> Counting only occurs between <strong>9:00 AM and 10:00 PM (IST)</strong> daily. Off-hours and <strong>Sundays</strong> are automatically excluded.
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">Rank</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th style="text-align: right; width: 150px;">Active Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% leaderboard.forEach((entry, index) => { %>
+              <tr <% if (index === 0 && entry.totalMinutes > 0) { %>class="hot-seat" style="transform: none;"<% } %>>
+                <td data-label="Rank" style="font-weight: 700; color: <%= index === 0 && entry.totalMinutes > 0 ? '#ff8a00' : 'inherit' %>;">
+                  #<%= index + 1 %>
+                </td>
+                <td data-label="Name" style="font-weight: 600;">
+                  <%= entry.name %>
+                  <% if (index === 0 && entry.totalMinutes > 0) { %>
+                    👑
+                  <% } %>
+                </td>
+                <td data-label="Email" style="text-transform: none; color: var(--text-muted);">
+                  <%= entry.email %>
+                </td>
+                <td data-label="Active Duration" style="text-align: right; font-weight: 700; color: var(--primary);">
+                  <%= entry.durationStr %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

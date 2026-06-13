@@ -11,27 +11,62 @@
         <a href="/admin">Dashboard</a>
       <% } %>
       <div class="profile-dropdown">
-        <button class="btn btn-small profile-btn" id="profileBtn" onclick="document.getElementById('profileMenu').classList.toggle('show');">
+        <button class="btn btn-small profile-btn" id="profileBtn" onclick="toggleProfileModal()">
           <%= user.name.charAt(0).toUpperCase() %>
         </button>
-        <div id="profileMenu" class="profile-menu">
-          <div class="profile-menu-header">
-            <strong><%= user.name %></strong>
-            <div class="profile-menu-email"><%= user.email %></div>
+      </div>
+
+      <!-- Profile Modal Pop-up -->
+      <div id="profileModal" class="modal-backdrop" onclick="closeProfileModal(event)">
+        <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+          <button class="modal-close-btn" onclick="toggleProfileModal()">&times;</button>
+          
+          <div class="modal-header-popup">
+            <div class="modal-avatar">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <h3><%= user.name %></h3>
+            <span class="badge-role"><%= user.role %></span>
           </div>
-          <a href="/profile" class="profile-menu-link">My Profile</a>
-          <form action="/logout" method="GET" class="profile-menu-form">
-            <button type="submit" class="profile-menu-logout">Logout</button>
-          </form>
+          
+          <div class="modal-body">
+            <div class="info-item">
+              <span class="info-label">Email Address</span>
+              <span class="info-value"><%= user.email %></span>
+            </div>
+          </div>
+          
+          <div class="modal-footer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a href="/profile" class="btn btn-profile-link w-full">My Profile</a>
+            <form action="/logout" method="GET" class="w-full" style="margin: 0;">
+              <button type="submit" class="btn btn-danger w-full">Logout</button>
+            </form>
+          </div>
         </div>
       </div>
+
       <script>
-        // Close dropdown if clicked outside
-        document.addEventListener('click', function(event) {
-          const menu = document.getElementById('profileMenu');
-          const btn = document.getElementById('profileBtn');
-          if (menu.classList.contains('show') && !menu.contains(event.target) && !btn.contains(event.target)) {
-            menu.classList.remove('show');
+        function toggleProfileModal() {
+          const modal = document.getElementById('profileModal');
+          if (modal) {
+            modal.classList.toggle('show');
+          }
+        }
+
+        function closeProfileModal(event) {
+          const modal = document.getElementById('profileModal');
+          if (modal && event.target === modal) {
+            modal.classList.remove('show');
+          }
+        }
+
+        // Close modal on Escape key press
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') {
+            const modal = document.getElementById('profileModal');
+            if (modal && modal.classList.contains('show')) {
+              modal.classList.remove('show');
+            }
           }
         });
       </script>

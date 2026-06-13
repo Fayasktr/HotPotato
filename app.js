@@ -1,4 +1,5 @@
 require('dotenv').config();
+process.env.TZ = 'Asia/Kolkata';
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -59,6 +60,23 @@ app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.ownerEmail = (process.env.OWNER_EMAIL || 'admin@test.com').toLowerCase();
+    res.locals.formatDateTime = (date) => {
+        if (!date) return '';
+        try {
+            return new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kolkata',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            }).format(new Date(date));
+        } catch (e) {
+            return '';
+        }
+    };
     next();
 });
 

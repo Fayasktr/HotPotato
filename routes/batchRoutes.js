@@ -201,4 +201,134 @@ router.post('/:batchId/members/add', isInBatch, async (req, res) => {
   }
 });
 
+function getKolkataActiveMinutes(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (start >= end) return 0;
+
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  });
+  
+  const startParts = formatter.format(start).split(', ');
+  const endParts = formatter.format(end).split(', ');
+  
+  const [sMonth, sDay, sYear] = startParts[0].split('/');
+  const [sHour, sMin, sSec] = startParts[1].split(':');
+  
+  const [eMonth, eDay, eYear] = endParts[0].split('/');
+  const [eHour, eMin, eSec] = endParts[1].split(':');
+
+  const localStart = new Date(Date.UTC(sYear, sMonth - 1, sDay, sHour, sMin, sSec));
+  const localEnd = new Date(Date.UTC(eYear, eMonth - 1, eDay, eHour, eMin, eSec));
+
+  let totalMinutes = 0;
+  let currentDay = new Date(Date.UTC(localStart.getUTCFullYear(), localStart.getUTCMonth(), localStart.getUTCDate()));
+  const endDay = new Date(Date.UTC(localEnd.getUTCFullYear(), localEnd.getUTCMonth(), localEnd.getUTCDate()));
+
+  while (currentDay <= endDay) {
+    const dayOfWeek = currentDay.getUTCDay();
+    
+    if (dayOfWeek !== 0) { // Skip Sunday
+      const activeStart = new Date(Date.UTC(currentDay.getUTCFullYear(), currentDay.getUTCMonth(), currentDay.getUTCDate(), 9, 0, 0));
+      const activeEnd = new Date(Date.UTC(currentDay.getUTCFullYear(), currentDay.getUTCMonth(), currentDay.getUTCDate(), 22, 0, 0));
+
+      let dayStart = localStart > activeStart ? localStart : activeStart;
+      if (dayStart < activeStart || dayStart.getUTCDate() !== currentDay.getUTCDate()) {
+        dayStart = activeStart;
+      }
+
+      let dayEnd = localEnd < activeEnd ? localEnd : activeEnd;
+      if (dayEnd > activeEnd || dayEnd.getUTCDate() !== currentDay.getUTCDate()) {
+        dayEnd = activeEnd;
+      }
+
+      if (dayStart < dayEnd && dayStart.getUTCDate() === currentDay.getUTCDate() && dayEnd.getUTCDate() === currentDay.getUTCDate()) {
+        const diffMs = dayEnd - dayStart;
+        totalMinutes += Math.floor(diffMs / 60000);
+      }
+    }
+
+    currentDay.setUTCDate(currentDay.getUTCDate() + 1);
+  }
+
+  return totalMinutes;
+}
+
+// GET /batch/:batchId/duration -> render active duration leaderboard
+router.get('/:batchId/duration', isInBatch, async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    
+    if (req.session.user.role !== 'admin' && req.session.user.batchId.toString() !== batchId) {
+      req.flash('error', 'You can only view your own batch');
+      return res.redirect('/');
+    }
+
+    const batch = await Batch.findById(batchId);
+    const potato = await Potato.findOne({ batchId });
+    const members = await User.find({ batchId });
+    const historyLog = await History.find({ batchId }).sort('timestamp');
+
+    const durationMap = {};
+    members.forEach(m => {
+      durationMap[m._id.toString()] = 0;
+    });
+
+    let currentHolder = null;
+    let lastEventTime = null;
+
+    for (const h of historyLog) {
+      if (currentHolder) {
+        const holderIdStr = currentHolder.toString();
+        const minutes = getKolkataActiveMinutes(lastEventTime, h.timestamp);
+        if (durationMap[holderIdStr] !== undefined) {
+          durationMap[holderIdStr] += minutes;
+        } else {
+          durationMap[holderIdStr] = minutes;
+        }
+      }
+      currentHolder = h.toId;
+      lastEventTime = h.timestamp;
+    }
+
+    // Add current holding time if potato is active and held
+    if (potato && potato.holderId && currentHolder) {
+      const holderIdStr = potato.holderId.toString();
+      const minutes = getKolkataActiveMinutes(lastEventTime, new Date());
+      if (durationMap[holderIdStr] !== undefined) {
+        durationMap[holderIdStr] += minutes;
+      } else {
+        durationMap[holderIdStr] = minutes;
+      }
+    }
+
+    const durationLeaderboard = members.map(m => {
+      const totalMinutes = durationMap[m._id.toString()] || 0;
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      let durationStr = '';
+      if (hours > 0) {
+        durationStr += `${hours}h `;
+      }
+      durationStr += `${mins}m`;
+      return {
+        id: m._id,
+        name: m.name,
+        email: m.email,
+        totalMinutes,
+        durationStr
+      };
+    }).sort((a, b) => b.totalMinutes - a.totalMinutes);
+
+    res.render('batch/duration', { batch, leaderboard: durationLeaderboard });
+  } catch (err) {
+    req.flash('error', 'Error loading duration leaderboard');
+    res.redirect(`/batch/${req.params.batchId}`);
+  }
+});
+
 module.exports = router;

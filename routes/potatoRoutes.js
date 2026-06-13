@@ -57,7 +57,9 @@ router.post('/assign', async (req, res) => {
     await History.create({
       batchId,
       fromId: user._id,
+      fromEmail: user.email.toLowerCase(),
       toId,
+      toEmail: toUser.email.toLowerCase(),
       reason
     });
 
@@ -128,7 +130,9 @@ router.post('/pass', async (req, res) => {
     await History.create({
       batchId,
       fromId: user._id, // Recording the actor who passed it
+      fromEmail: user.email.toLowerCase(),
       toId,
+      toEmail: toUser.email.toLowerCase(),
       reason
     });
 

@@ -25,7 +25,7 @@
                 <strong><%= h.fromId ? h.fromId.name : 'System' %></strong> caught <strong><%= h.toId ? h.toId.name : 'Unknown' %></strong>
               </div>
               <div style="color: var(--text-muted); font-style: italic; margin-top: 4px; font-size: 0.9em;">"<%= h.reason %>"</div>
-              <div class="log-meta"><%= new Date(h.timestamp).toLocaleString() %></div>
+              <div class="log-meta"><%= formatDateTime(h.timestamp) %></div>
             </li>
           <% }) %>
         </ul>

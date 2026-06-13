@@ -9,27 +9,27 @@
 <body>
   <%- include('partials/header') %>
   
-  <div class="container text-center">
-    <div class="potato-hero active" style="max-width: 600px; margin: 4rem auto;">
-      <span class="potato-emoji">🥔</span>
-      <h1 style="font-size: 3rem; margin-bottom: 1rem;">Hot Potato</h1>
-      <p class="text-muted mb-4" style="font-size: 1.2rem;">The ultimate English-zone enforcement game for your college batch!</p>
+  <div class="container text-center" style="padding-top: 1rem; padding-bottom: 1rem;">
+    <div class="potato-hero active" style="max-width: 480px; margin: 1.25rem auto; padding: 1.5rem 1.25rem;">
+      <span class="potato-emoji" style="font-size: 3rem; margin-bottom: 0.5rem;">🥔</span>
+      <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Hot Potato</h1>
+      <p class="text-muted mb-3" style="font-size: 1rem; line-height: 1.5;">The ultimate English-zone enforcement game for your college batch!</p>
       
       <%- include('partials/flash') %>
       
       <% if (!locals.user) { %>
-        <div class="mb-4">
-          <a href="/login" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Log In</a>
+        <div class="mb-2">
+          <a href="/login" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2.25rem;">Log In</a>
         </div>
       <% } else { %>
-        <div class="mb-4">
-          <p class="text-muted" style="margin-bottom: 10px;">You are currently logged in as <strong><%= user.name %></strong>.</p>
+        <div class="mb-2">
+          <p class="text-muted" style="margin-bottom: 8px; font-size: 0.95rem;">You are currently logged in as <strong><%= user.name %></strong>.</p>
           <% if (user.role === 'admin') { %>
-            <a href="/admin" class="btn btn-primary">Go to Admin Dashboard</a>
+            <a href="/admin" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2rem;">Go to Admin Dashboard</a>
           <% } else if (user.batchId) { %>
-            <a href="/batch/<%= user.batchId %>" class="btn btn-primary">Go to Your Batch</a>
+            <a href="/batch/<%= user.batchId %>" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2rem;">Go to Your Batch</a>
           <% } else { %>
-            <p style="color: var(--danger);">You have not been assigned to a batch yet. Please ask your administrator.</p>
+            <p style="color: var(--danger); font-size: 0.95rem;">You have not been assigned to a batch yet. Please ask your administrator.</p>
           <% } %>
         </div>
       <% } %>

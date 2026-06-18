@@ -126,7 +126,7 @@ router.get('/reset-password/:token', async (req, res) => {
 router.post('/reset-password/:token', async (req, res) => {
   const { password, confirmPassword } = req.body;
   if (password !== confirmPassword) {
-    req.flash('error', 'Passwords do not match');
+    req.flash('error', 'New password and confirm password do not match');
     return res.redirect(`/reset-password/${req.params.token}`);
   }
 

@@ -234,7 +234,7 @@ function getKolkataActiveMinutes(startDate, endDate) {
     
     if (dayOfWeek !== 0) { // Skip Sunday
       const activeStart = new Date(Date.UTC(currentDay.getUTCFullYear(), currentDay.getUTCMonth(), currentDay.getUTCDate(), 9, 0, 0));
-      const activeEnd = new Date(Date.UTC(currentDay.getUTCFullYear(), currentDay.getUTCMonth(), currentDay.getUTCDate(), 22, 0, 0));
+      const activeEnd = new Date(Date.UTC(currentDay.getUTCFullYear(), currentDay.getUTCMonth(), currentDay.getUTCDate(), 17, 30, 0));
 
       let dayStart = localStart > activeStart ? localStart : activeStart;
       if (dayStart < activeStart || dayStart.getUTCDate() !== currentDay.getUTCDate()) {

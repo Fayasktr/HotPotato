@@ -75,4 +75,21 @@
       <a href="/login" class="btn" style="background: rgba(255,255,255,0.1); color: white;">Login</a>
     <% } %>
   </nav>
+
+  <script>
+    function togglePasswordVisibility(btn) {
+      const input = btn.previousElementSibling;
+      const eyeOpen = btn.querySelector('.eye-open');
+      const eyeClosed = btn.querySelector('.eye-closed');
+      if (input.type === 'password') {
+        input.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'block';
+      } else {
+        input.type = 'password';
+        eyeOpen.style.display = 'block';
+        eyeClosed.style.display = 'none';
+      }
+    }
+  </script>
 </header>

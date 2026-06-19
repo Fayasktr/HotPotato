@@ -95,10 +95,33 @@ router.post('/forgot-password', async (req, res) => {
     await PasswordReset.create({ userId: user._id, token, expiresAt });
 
     const resetLink = `${req.protocol}://${req.get('host')}/reset-password/${token}`;
+    
+    const htmlContent = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); color: #333333; border: 1px solid #eaeaea;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2b3a4a; margin: 0; font-size: 32px; letter-spacing: -0.5px;">🥔 Hot Potato</h1>
+          <p style="color: #88929b; font-size: 16px; margin-top: 8px;">Password Reset Request</p>
+        </div>
+        <div style="background: #f9fbfd; padding: 30px; border-radius: 8px; border-left: 5px solid #4a90e2;">
+          <p style="font-size: 18px; font-weight: 600; margin-top: 0; color: #2b3a4a;">Hello ${user.name},</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #4a5568;">We received a request to reset the password for your Hot Potato account. If you didn't make this request, you can safely ignore this email.</p>
+          <div style="text-align: center; margin: 40px 0;">
+            <a href="${resetLink}" style="background-color: #4a90e2; color: #ffffff; text-decoration: none; padding: 15px 35px; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px rgba(74, 144, 226, 0.4); transition: background-color 0.3s ease;">Reset My Password</a>
+          </div>
+          <p style="font-size: 14px; color: #718096; margin-bottom: 0;">Or copy and paste this link into your browser:<br>
+          <a href="${resetLink}" style="color: #4a90e2; word-break: break-all; margin-top: 8px; display: inline-block;">${resetLink}</a></p>
+        </div>
+        <div style="text-align: center; margin-top: 40px; font-size: 14px; color: #a0aec0; border-top: 1px solid #edf2f7; padding-top: 20px;">
+          <p>&copy; ${new Date().getFullYear()} Hot Potato App. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
     await mailer.sendMail({
       to: user.email,
       subject: 'Password Reset - Hot Potato',
-      text: `Click the link to reset your password: ${resetLink}`
+      text: `Hello ${user.name},\n\nWe received a request to reset your Hot Potato password.\nClick the link below to reset your password:\n${resetLink}\n\nIf you did not request this, please ignore this email.`,
+      html: htmlContent
     });
 
     req.flash('success', 'If that email exists, a reset link has been sent.');

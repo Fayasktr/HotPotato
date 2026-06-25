@@ -99,7 +99,7 @@ router.post('/pass', async (req, res) => {
     }
 
     // Validate target
-    if (toId.toString() === potato.holderId.toString()) {
+    if (toId.toString() === potato.holderId.toString() && user.role !== 'admin' && user.role !== 'coordinator') {
       req.flash('error', 'Cannot pass the potato to the current holder');
       return res.redirect(`/batch/${batchId}`);
     }

@@ -61,7 +61,7 @@
               <select name="toId" class="form-control" required>
                 <option value="">-- Select --</option>
                 <% members.forEach(m => { %>
-                  <% if (m._id.toString() !== potato.holderId._id.toString()) { %>
+                  <% if (m._id.toString() !== potato.holderId._id.toString() || user.role === 'coordinator' || user.role === 'admin') { %>
                     <option value="<%= m._id %>"><%= m.name %></option>
                   <% } %>
                 <% }) %>
